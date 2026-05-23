@@ -412,6 +412,15 @@ php artisan optimize:clear
 
 ## 🔄 Update Log
 
+### [2026-05-23]
+
+- Added **AI Settings** page to configure models, keys, and token limits.
+- Added **Maps** page with MapLibre GL, Leaflet, and iframe styles.
+- Added **Vector Maps** page powered by AmCharts 5 geodata (World & USA).
+- Added **Radar Charts** page with 3 unique formats.
+- Added **Radial Progress Charts** page featuring 4 custom layout templates.
+- Introduced new **Bar Charts Five & Six** and **Pie Charts Four & Five**.
+
 ### [April 28, 2026]
 - Added **AI Dashboard** with token usage and revenue tracking.
 - Added **Sales Dashboard** with retention and multi-channel analytics.
