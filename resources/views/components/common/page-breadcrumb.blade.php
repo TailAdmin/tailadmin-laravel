@@ -13,7 +13,7 @@
                 >
                     Home
                     <svg
-                        class="stroke-current"
+                        class="stroke-current rtl:rotate-180"
                         width="17"
                         height="16"
                         viewBox="0 0 17 16"

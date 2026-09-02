@@ -88,6 +88,17 @@
         })();
     </script>
     
+    <!-- Apply RTL mode immediately to prevent flash -->
+    <script>
+        (function() {
+            const savedDir = localStorage.getItem("dir");
+            if (savedDir === "rtl") {
+                document.documentElement.setAttribute("dir", "rtl");
+            } else {
+                document.documentElement.setAttribute("dir", "ltr");
+            }
+        })();
+    </script>
 </head>
 
 <body
@@ -114,9 +125,9 @@
 
         <div class="flex-1 transition-all duration-300 ease-in-out"
             :class="{
-                'xl:ml-[290px]': $store.sidebar.isExpanded || $store.sidebar.isHovered,
-                'xl:ml-[90px]': !$store.sidebar.isExpanded && !$store.sidebar.isHovered,
-                'ml-0': $store.sidebar.isMobileOpen
+                'ltr:xl:ml-[290px] rtl:xl:mr-[290px]': $store.sidebar.isExpanded || $store.sidebar.isHovered,
+                'ltr:xl:ml-[90px] rtl:xl:mr-[90px]': !$store.sidebar.isExpanded && !$store.sidebar.isHovered,
+                'ml-0 mr-0': $store.sidebar.isMobileOpen
             }">
             <!-- app header start -->
             @include('layouts.app-header')

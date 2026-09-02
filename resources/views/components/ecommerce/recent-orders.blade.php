@@ -86,16 +86,16 @@
         <table class="min-w-full">
             <thead>
                 <tr class="border-t border-gray-100 dark:border-gray-800">
-                    <th class="py-3 text-left">
+                    <th class="py-3 text-start">
                         <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Products</p>
                     </th>
-                    <th class="py-3 text-left">
+                    <th class="py-3 text-start">
                         <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Category</p>
                     </th>
-                    <th class="py-3 text-left">
+                    <th class="py-3 text-start">
                         <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Price</p>
                     </th>
-                    <th class="py-3 text-left">
+                    <th class="py-3 text-start">
                         <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Status</p>
                     </th>
                 </tr>

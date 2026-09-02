@@ -412,6 +412,15 @@ php artisan optimize:clear
 
 ## 🔄 Update Log
 
+### [1.1.2] - 2026-09-02
+
+- **Dependency updates**: FullCalendar upgraded to v7 and ApexCharts / Swiper bumped to latest versions.
+- **RTL layout support**: Added right-to-left (RTL) direction support with automatic layout flipping and toggle.
+- **Language / RTL switcher**: Added switcher in user dropdown with persistent direction state in `localStorage`.
+- **Keyboard & dropdown improvements**: Enhanced dropdown behavior and click-outside handling.
+- **Tailwind CSS v4 optimizations**: Applied CSS logical properties across sidebar, tables, header, and components.
+
+
 ### [2026-05-23]
 
 - Added **AI Settings** page to configure models, keys, and token limits.

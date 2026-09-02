@@ -8,7 +8,7 @@
 @endphp
 
 <aside id="sidebar"
-    class="fixed flex flex-col mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-99999 border-r border-gray-200"
+    class="fixed flex flex-col mt-0 top-0 px-5 start-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-99999 ltr:border-r rtl:border-l border-gray-200"
     x-data="{
         openSubmenus: {},
         init() {
@@ -123,7 +123,7 @@
                                                 class="menu-item-text flex items-center gap-2">
                                                 {{ $item['name'] }}
                                                 @if (!empty($item['new']))
-                                                    <span class="absolute right-10"
+                                                    <span class="absolute ltr:right-10 rtl:left-10"
                                                         :class="isActive('{{ $item['path'] ?? '' }}') ?
                                                             'menu-dropdown-badge menu-dropdown-badge-active' :
                                                             'menu-dropdown-badge menu-dropdown-badge-inactive'">
@@ -134,7 +134,7 @@
 
                                             <!-- Chevron Down Icon -->
                                             <svg x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
-                                                class="ml-auto w-5 h-5 transition-transform duration-200"
+                                                class="ltr:ml-auto rtl:mr-auto w-5 h-5 transition-transform duration-200"
                                                 :class="{
                                                     'rotate-180 text-brand-500': isSubmenuOpen({{ $groupIndex }},
                                                         {{ $itemIndex }})
@@ -146,7 +146,7 @@
 
                                         <!-- Submenu -->
                                         <div x-show="isSubmenuOpen({{ $groupIndex }}, {{ $itemIndex }}) && ($store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen)">
-                                            <ul class="mt-2 space-y-1 ml-9">
+                                            <ul class="mt-2 space-y-1 ltr:ml-9 rtl:mr-9">
                                                 @foreach ($item['subItems'] as $subItem)
                                                     <li>
                                                         <a href="{{ $subItem['path'] }}" class="menu-dropdown-item"
@@ -154,7 +154,7 @@
                                                                 'menu-dropdown-item-active' :
                                                                 'menu-dropdown-item-inactive'">
                                                             {{ $subItem['name'] }}
-                                                            <span class="flex items-center gap-1 ml-auto">
+                                                            <span class="flex items-center gap-1 ltr:ml-auto rtl:mr-auto">
                                                                 @if (!empty($subItem['new']))
                                                                     <span
                                                                         :class="isActive('{{ $subItem['path'] }}') ?
@@ -202,7 +202,7 @@
                                                 {{ $item['name'] }}
                                                 @if (!empty($item['new']))
                                                     <span
-                                                        class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-brand-500 text-white">
+                                                        class="ms-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-brand-500 text-white">
                                                         new
                                                     </span>
                                                 @endif

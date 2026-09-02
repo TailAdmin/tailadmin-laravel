@@ -189,7 +189,7 @@
     cursor: pointer;
   }
   body {
-    @apply relative font-normal font-outfit z-1 bg-gray-50;
+    @apply relative font-normal font-outfit z-1 bg-gray-50 dark:bg-gray-900;
   }
 }
 
@@ -217,9 +217,9 @@
   @apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300;
 }
 
-@utility menu-item-arrow {
+/* @utility menu-item-arrow {
   @apply relative;
-}
+} */
 
 @utility menu-item-arrow-active {
   @apply rotate-180 text-brand-500 dark:text-brand-400;
@@ -483,11 +483,11 @@
 }
 .flatpickr-months .flatpickr-prev-month.flatpickr-prev-month,
 .flatpickr-months .flatpickr-next-month.flatpickr-prev-month {
-  @apply !left-7;
+  @apply !left-7 rtl:!left-auto rtl:!right-7;
 }
 .flatpickr-months .flatpickr-prev-month.flatpickr-next-month,
 .flatpickr-months .flatpickr-next-month.flatpickr-next-month {
-  @apply !right-7;
+  @apply !right-7 rtl:!right-auto rtl:!left-7;
 }
 span.flatpickr-weekday,
 .flatpickr-months .flatpickr-month {
@@ -557,8 +557,19 @@ span.flatpickr-weekday,
   fill: none !important;
 }
 
+.flatpickr-prev-month svg,
+.flatpickr-next-month svg {
+  @apply rtl:rotate-180;
+}
+
 .flatpickr-calendar.static {
-  @apply right-0;
+  @apply left-0 right-auto rtl:left-auto rtl:right-0;
+}
+.flatpickr-calendar.static.flatpickr-right {
+  @apply right-0 left-auto rtl:right-auto rtl:left-0;
+}
+.flatpickr-calendar.static.flatpickr-left {
+  @apply left-0 right-auto rtl:left-auto rtl:right-0;
 }
 .flatpickr-calendar.hasTime {
   width: 300px !important;
@@ -611,15 +622,6 @@ span.flatpickr-weekday,
 }
 .fc-toolbar-title {
   @apply !text-lg !font-medium text-gray-800 dark:text-white/90;
-}
-.fc-header-toolbar.fc-toolbar .fc-toolbar-chunk:last-child {
-  @apply rounded-lg bg-gray-100 p-0.5 dark:bg-gray-900;
-}
-.fc-header-toolbar.fc-toolbar .fc-toolbar-chunk:last-child .fc-button {
-  @apply !h-auto !w-auto rounded-md !border-0 bg-transparent !px-5 !py-2 text-sm font-medium text-gray-500 hover:text-gray-700 focus:!shadow-none dark:text-gray-400;
-}
-.fc-header-toolbar.fc-toolbar .fc-toolbar-chunk:last-child .fc-button.fc-button-active {
-  @apply text-gray-900 bg-white dark:bg-gray-800 dark:text-white;
 }
 .fc-theme-standard th {
   @apply !border-x-0 border-t !border-gray-200 bg-gray-50 !text-left dark:!border-gray-800 dark:bg-gray-900;
@@ -697,7 +699,112 @@ span.flatpickr-weekday,
 .fc .fc-timegrid-axis-cushion {
   @apply text-sm font-medium text-gray-500 dark:text-gray-400;
 }
+/* yearly calender css start */
+/* FullCalendar MultiMonth (Year View) */
+.fc-multimonth {
+  @apply grid! grid-cols-1 gap-6 border-x-0! p-6 sm:grid-cols-2 lg:grid-cols-3;
+  background: transparent;
+}
 
+.fc-multimonth-month {
+  @apply w-full! rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900/50;
+}
+
+.fc-multimonth-title {
+  @apply py-2! text-center! text-base! font-semibold! text-gray-800 dark:text-white/90;
+}
+
+.fc-multimonth-header {
+  @apply border-gray-200! dark:border-gray-800!;
+}
+
+.fc-multimonth-header th {
+  @apply border-0! bg-transparent! py-2! text-center!;
+}
+
+.fc-multimonth-header .fc-col-header-cell-cushion {
+  @apply p-0! text-xs! font-medium text-gray-400 dark:text-gray-500;
+}
+
+.fc-multimonth-daygrid-table {
+  @apply border-none!;
+}
+
+.fc-multimonth-daygrid-table td {
+  @apply border-none!;
+}
+
+.fc-multimonth-day {
+  @apply p-0.5!;
+}
+
+.fc-multimonth .fc-daygrid-day-frame {
+  @apply min-h-14 rounded-md p-1 transition-colors hover:bg-gray-50 sm:min-h-16 dark:hover:bg-white/5;
+}
+
+.fc-multimonth .fc-daygrid-day-number {
+  @apply p-0.5! text-xs font-medium text-gray-700 dark:text-gray-400;
+}
+
+.fc-multimonth .fc-daygrid-day.fc-day-today .fc-daygrid-day-frame {
+  @apply rounded-md bg-brand-50/60 font-semibold text-brand-500 dark:bg-brand-500/10 dark:text-brand-400;
+}
+
+.fc-multimonth .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+  @apply font-semibold text-brand-500 dark:text-brand-400;
+}
+
+.fc .fc-cell-shaded,
+.fc .fc-day-disabled,
+.fc .fc-day-other,
+.fc-multimonth .fc-day-other .fc-daygrid-day-frame,
+.fc-multimonth .fc-day-disabled .fc-daygrid-day-frame {
+  @apply bg-transparent! hover:bg-transparent!;
+}
+
+.fc-daygrid-more-link {
+  @apply border-0! bg-transparent! p-0!;
+}
+
+.fc-more-link-badge {
+  @apply inline-flex items-center rounded-sm bg-brand-50 px-1.5 py-0.5 text-xs font-medium text-brand-600 transition-colors hover:bg-brand-100 dark:bg-brand-500/15 dark:text-brand-400 dark:hover:bg-brand-500/25;
+}
+
+.fc-multimonth .event-fc-color {
+  @apply my-0.5 rounded py-0.5 ps-1.5 pe-1 text-xs;
+}
+
+.fc-multimonth .event-fc-color .fc-daygrid-event-dot {
+  @apply me-1 h-2 w-2 rounded-full;
+}
+
+.fc-multimonth .event-fc-color .fc-event-title {
+  @apply truncate text-xs;
+}
+
+/* FullCalendar Popover */
+.fc .fc-popover,
+.fc-theme-standard .fc-popover {
+  @apply z-99999! rounded-xl border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-900;
+}
+
+.fc .fc-popover-header,
+.fc-theme-standard .fc-popover-header {
+  @apply flex items-center justify-between border-b border-gray-200 bg-transparent px-3.5 py-2.5 dark:border-gray-800 dark:bg-transparent;
+}
+
+.fc .fc-popover-title {
+  @apply text-sm font-semibold text-gray-800 dark:text-white/90;
+}
+
+.fc .fc-popover-close {
+  @apply flex h-6 w-6 cursor-pointer items-center justify-center rounded-lg text-gray-400 opacity-100 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white;
+}
+
+.fc .fc-popover-body {
+  @apply space-y-1.5 p-2.5;
+}
+/* yearly calender css end */
 .input-date-icon::-webkit-inner-spin-button,
 .input-date-icon::-webkit-calendar-picker-indicator {
   opacity: 0;
@@ -730,12 +837,12 @@ span.flatpickr-weekday,
 
 .carouselTwo .swiper-button-prev,
 .carouselFour .swiper-button-prev {
-  @apply !left-3 sm:!left-4;
+  @apply !left-3 sm:!left-4 rtl:!left-auto rtl:!right-3 rtl:sm:!right-4;
 }
 
 .carouselTwo .swiper-button-next,
 .carouselFour .swiper-button-next {
-  @apply !right-3 sm:!right-4;
+  @apply !right-3 sm:!right-4 rtl:!right-auto rtl:!left-3 rtl:sm:!left-4;
 }
 
 .carouselThree .swiper-pagination,
@@ -868,6 +975,10 @@ pre[class*='language-'] {
   left: 0;
   right: auto;
 }
+[dir="rtl"] .custom-datepicker .flatpickr-calendar.static.open {
+  right: 0;
+  left: auto;
+}
 
 .swiper-button-prev, .swiper-button-next {
     svg {
@@ -879,4 +990,158 @@ pre[class*='language-'] {
   .flatpickr-calendar.static {
     margin-right: -60px !important;
   }
+}
+
+@utility menu-item {
+  @apply relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium;
+}
+
+@utility menu-item-active {
+  @apply bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400;
+}
+
+@utility menu-item-inactive {
+  @apply text-gray-700 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-gray-300;
+}
+
+@utility menu-item-icon-active {
+  @apply text-brand-500 dark:text-brand-400;
+}
+
+@utility menu-item-icon-inactive {
+  @apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300;
+}
+
+@utility menu-item-arrow {
+  @apply absolute top-1/2 right-2.5 -translate-y-1/2;
+}
+
+@utility menu-item-arrow-active {
+  @apply stroke-brand-500 dark:stroke-brand-400 rotate-180;
+}
+
+@utility menu-item-arrow-inactive {
+  @apply stroke-gray-500 group-hover:stroke-gray-700 dark:stroke-gray-400 dark:group-hover:stroke-gray-300;
+}
+
+@utility menu-dropdown-item {
+  @apply text-theme-sm relative flex items-center gap-3 rounded-lg px-3 py-2.5 font-medium;
+}
+
+@utility menu-dropdown-item-active {
+  @apply bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400;
+}
+
+@utility menu-dropdown-item-inactive {
+  @apply text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5;
+}
+
+@utility menu-dropdown-badge {
+  @apply text-success-600 dark:text-success-500 block rounded-full px-2.5 py-0.5 text-xs font-medium uppercase;
+}
+
+@utility menu-dropdown-badge-active {
+  @apply bg-success-100 dark:bg-success-500/20;
+}
+
+@utility menu-dropdown-badge-inactive {
+  @apply bg-success-50 group-hover:bg-success-100 dark:bg-success-500/15 dark:group-hover:bg-success-500/20;
+}
+
+@utility menu-dropdown-badge-pro {
+  @apply text-brand-600 dark:text-brand-500 block rounded-full px-2.5 py-0.5 text-xs font-medium uppercase;
+}
+
+@utility menu-dropdown-badge-pro-active {
+  @apply bg-brand-100 dark:bg-brand-500/20;
+}
+
+@utility menu-dropdown-badge-pro-inactive {
+  @apply bg-brand-50 group-hover:bg-brand-100 dark:bg-brand-500/15 dark:group-hover:bg-brand-500/20;
+}
+
+@utility docs-menu-item {
+  @apply block rounded-lg px-3 py-1.5 text-sm transition-colors duration-150;
+}
+
+@utility docs-menu-item-active {
+  @apply bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400;
+}
+
+@utility docs-menu-item-inactive {
+  @apply text-gray-500 hover:bg-gray-100 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white;
+}
+
+@utility docs-border-item {
+  @apply -ml-[1.5px] block border-l pl-4 text-sm font-normal transition-colors duration-200;
+}
+
+@utility docs-border-item-active {
+  @apply border-brand-500 text-brand-500;
+}
+
+@utility docs-border-item-inactive {
+  @apply border-transparent text-gray-500 hover:border-gray-800 hover:text-gray-800 dark:text-gray-400 dark:hover:border-gray-400 dark:hover:text-gray-200;
+}
+
+@utility nav-icon-item {
+  @apply flex size-10 items-center justify-center rounded-full;
+}
+
+@utility nav-icon-item-active {
+  @apply text-brand-500 border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900;
+}
+
+@utility nav-icon-item-inactive {
+  @apply hover:text-brand-500 dark:hover:text-brand-500 border border-transparent text-gray-500 hover:border-gray-200 hover:bg-white dark:text-gray-400 dark:hover:border-gray-800 dark:hover:bg-gray-900;
+}
+
+@utility no-scrollbar {
+  /* Chrome, Safari and Opera */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+@utility custom-scrollbar {
+  &::-webkit-scrollbar {
+    @apply size-1.5;
+  }
+
+  &::-webkit-scrollbar-track {
+    @apply rounded-full;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-gray-200;
+  }
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #344054;
+}
+
+.api-token-chart .apexcharts-tooltip {
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+#card-slider-prev.swiper-button-disabled,
+#card-slider-next.swiper-button-disabled {
+  @apply pointer-events-none opacity-50;
+}
+
+/* Force code blocks and syntax highlighting to always remain LTR */
+pre,
+code,
+pre code,
+.line-numbers,
+[class*="language-"],
+.prism-code {
+  direction: ltr !important;
+  text-align: left !important;
+  unicode-bidi: isolate;
 }
