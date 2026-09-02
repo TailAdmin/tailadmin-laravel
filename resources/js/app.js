@@ -1,3 +1,4 @@
+import { createPopper } from '@popperjs/core';
 import './bootstrap';
 import Alpine from 'alpinejs';
 import ApexCharts from 'apexcharts';
@@ -11,6 +12,7 @@ import { Calendar } from 'fullcalendar';
 
 
 window.Alpine = Alpine;
+window.createPopper = createPopper;
 window.ApexCharts = ApexCharts;
 window.flatpickr = flatpickr;
 window.FullCalendar = Calendar;
