@@ -82,7 +82,7 @@ export function calendarInit() {
             <path d="m6 9 6 6 6-6"/>
           </svg>
         </button>
-        <div class="calendar-view-menu absolute end-0 z-50 mt-1.5 hidden w-38 space-y-0.5 rounded-xl border border-gray-200 bg-white p-1.5 shadow-lg dark:border-gray-700 dark:bg-gray-900">
+        <div class="calendar-view-menu absolute start-0 sm:start-auto sm:end-0 z-50 mt-1.5 hidden w-38 space-y-0.5 rounded-xl border border-gray-200 bg-white p-1.5 shadow-lg dark:border-gray-700 dark:bg-gray-900!">
           ${CALENDAR_VIEW_OPTIONS.map(
             (view) => `
             <button

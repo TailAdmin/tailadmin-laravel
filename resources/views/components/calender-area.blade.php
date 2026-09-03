@@ -2,7 +2,7 @@
 <div>
     <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3">
         <div class="custom-calendar relative">
-            <div id="calendar" class="min-h-screen"></div>
+            <div id="calendar"></div>
         </div>
     </div>
 

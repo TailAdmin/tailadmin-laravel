@@ -627,8 +627,17 @@ span.flatpickr-weekday,
 html.dark .fc .fc-daygrid-day,
 html.dark .fc .fc-daygrid-day-frame,
 html.dark .fc td,
-html.dark .fc-classic-Jk3 {
+html.dark td.fc-classic-Jk3,
+html.dark .fc-daygrid-day.fc-classic-Jk3 {
   background-color: transparent !important;
+}
+
+html.dark [role="dialog"],
+html.dark [role="dialog"].fc-classic-Jk3,
+html.dark .fc-popover,
+html.dark .fc-popover.fc-classic-Jk3,
+html.dark .fc-more-popover {
+  background-color: var(--color-gray-900, #111827) !important;
 }
 
 html.dark .fc table,
