@@ -1,352 +1,680 @@
+import { Calendar } from "fullcalendar";
+import themePlugin from "fullcalendar/themes/classic";
+import dayGridPlugin from "fullcalendar/daygrid";
+import interactionPlugin from "fullcalendar/interaction";
+import listPlugin from "fullcalendar/list";
+import multiMonthPlugin from "fullcalendar/multimonth";
+import timeGridPlugin from "fullcalendar/timegrid";
 
-
-import { Calendar } from "@fullcalendar/core";
-import dayGridPlugin from "@fullcalendar/daygrid";
-import listPlugin from "@fullcalendar/list";
-import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin from "@fullcalendar/interaction";
+import "fullcalendar/skeleton.css";
+import "fullcalendar/themes/classic/theme.css";
+import "fullcalendar/themes/classic/palette.css";
 
 export function calendarInit() {
-  const calendarWrapper = document.querySelector("#calendar");
+  const calendarEl = document.querySelector("#calendar");
 
-  if (calendarWrapper) {
-    // Calendar Date variable
-    const newDate = new Date();
-    const getDynamicMonth = () => {
-      const month = newDate.getMonth() + 1;
-      return month < 10 ? `0${month}` : `${month}`;
-    };
+  if (!calendarEl) return;
 
-    // Calendar Modal Elements
-    const getModalTitleEl = document.querySelector("#event-title");
-    const getModalStartDateEl = document.querySelector("#event-start-date");
-    const getModalEndDateEl = document.querySelector("#event-end-date");
-    const getModalAddBtnEl = document.querySelector(".btn-add-event");
-    const getModalUpdateBtnEl = document.querySelector(".btn-update-event");
-    const getModalHeaderEl = document.querySelector("#eventModalLabel");
+  const isRtl = document.documentElement.dir === "rtl";
+  const locale = document.documentElement.lang || "en";
 
-    const calendarsEvents = {
-      Danger: "danger",
-      Success: "success",
-      Primary: "primary",
-      Warning: "warning",
-    };
+  // Initial Events matching Next.js
+  const INITIAL_EVENTS = [
+    {
+      id: "1",
+      title: "Event Conf.",
+      start: new Date().toISOString().split("T")[0],
+      extendedProps: { calendar: "Danger" },
+    },
+    {
+      id: "2",
+      title: "Meeting",
+      start: new Date(Date.now() + 86400000).toISOString().split("T")[0],
+      extendedProps: { calendar: "Success" },
+    },
+    {
+      id: "3",
+      title: "Workshop",
+      start: new Date(Date.now() + 172800000).toISOString().split("T")[0],
+      end: new Date(Date.now() + 259200000).toISOString().split("T")[0],
+      extendedProps: { calendar: "Primary" },
+    },
+  ];
 
-    // Calendar Elements and options
-    const calendarEl = document.querySelector("#calendar");
+  // Calendar Modal Elements
+  const modalEl = document.getElementById("eventModal");
+  const modalTitleInput = document.querySelector("#event-title");
+  const modalStartDateInput = document.querySelector("#event-start-date");
+  const modalEndDateInput = document.querySelector("#event-end-date");
+  const modalAddBtn = document.querySelector(".btn-add-event");
+  const modalUpdateBtn = document.querySelector(".btn-update-event");
+  const modalHeaderTitle = document.querySelector("#eventModalLabel");
 
-    const calendarHeaderToolbar = {
-      left: "prev,next addEventButton",
-      center: "title",
-      right: "dayGridMonth,timeGridWeek,timeGridDay",
-    };
+  const CALENDAR_VIEW_OPTIONS = [
+    { key: "dayGridMonth", label: "Month" },
+    { key: "multiMonthYear", label: "Year" },
+    { key: "timeGridWeek", label: "Week" },
+    { key: "timeGridDay", label: "Day" },
+  ];
 
-    const calendarEventsList = [
-      {
-        id: "1",
-        title: "Event Conf.",
-        start: `${newDate.getFullYear()}-${getDynamicMonth()}-01`,
-        extendedProps: { calendar: "Danger" },
-      },
-      {
-        id: "2",
-        title: "Seminar #4",
-        start: `${newDate.getFullYear()}-${getDynamicMonth()}-07`,
-        end: `${newDate.getFullYear()}-${getDynamicMonth()}-10`,
-        extendedProps: { calendar: "Success" },
-      },
-      {
-        id: "3",
-        title: "Meeting #5",
-        start: `${newDate.getFullYear()}-${getDynamicMonth()}-09T16:00:00`,
-        extendedProps: { calendar: "Primary" },
-      },
-      {
-        id: "4",
-        title: "Submission #1",
-        start: `${newDate.getFullYear()}-${getDynamicMonth()}-16T16:00:00`,
-        extendedProps: { calendar: "Warning" },
-      },
-      {
-        id: "5",
-        title: "Seminar #6",
-        start: `${newDate.getFullYear()}-${getDynamicMonth()}-11`,
-        end: `${newDate.getFullYear()}-${getDynamicMonth()}-13`,
-        extendedProps: { calendar: "Danger" },
-      },
-    ];
+  let calendarInstance = null;
+  let currentView = "dayGridMonth";
+  let selectedEvent = null;
 
-    // Modal Functions
-    const openModal = () => {
-      const modal = document.getElementById("eventModal");
-      if (modal) {
-        modal.style.display = "flex";
-        document.body.style.overflow = "hidden"; // Prevent background scroll
+  // View Select Dropdown matching CalendarViewSelect.tsx
+  function renderViewSelect(containerEl, activeViewKey, calendarRef) {
+    if (!containerEl) return;
+    const targetCalendar = calendarRef || calendarInstance;
+    const activeOption =
+      CALENDAR_VIEW_OPTIONS.find((v) => v.key === activeViewKey) ||
+      CALENDAR_VIEW_OPTIONS[0];
+
+    containerEl.innerHTML = `
+      <div class="relative calendar-view-dropdown">
+        <button
+          type="button"
+          class="calendar-view-btn flex h-9 w-full min-w-20 items-center justify-center gap-1.5 rounded-lg border border-gray-300 ps-3 pe-2 text-sm font-medium text-gray-700 shadow-xs dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
+          aria-expanded="false"
+          aria-haspopup="listbox"
+        >
+          <span class="calendar-view-label">${activeOption.label}</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="calendar-view-chevron h-4.5 w-4.5 transition-transform duration-200">
+            <path d="m6 9 6 6 6-6"/>
+          </svg>
+        </button>
+        <div class="calendar-view-menu absolute start-0 sm:start-auto sm:end-0 z-50 mt-1.5 hidden w-38 space-y-0.5 rounded-xl border border-gray-200 bg-white p-1.5 shadow-lg dark:border-gray-700 dark:bg-gray-900!">
+          ${CALENDAR_VIEW_OPTIONS.map(
+            (view) => `
+            <button
+              type="button"
+              data-view-key="${view.key}"
+              class="calendar-view-option w-full rounded-lg px-2.5 py-1.5 text-start text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5 ${
+                activeViewKey === view.key
+                  ? "bg-gray-100 font-medium dark:bg-white/5"
+                  : "font-normal"
+              }"
+            >
+              ${view.label}
+            </button>
+          `
+          ).join("")}
+        </div>
+      </div>
+    `;
+
+    const dropdownContainer = containerEl.querySelector(".calendar-view-dropdown");
+    if (!dropdownContainer) return;
+    const btn = dropdownContainer.querySelector(".calendar-view-btn");
+    const menu = dropdownContainer.querySelector(".calendar-view-menu");
+    const chevron = dropdownContainer.querySelector(".calendar-view-chevron");
+
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isHidden = menu.classList.contains("hidden");
+      document
+        .querySelectorAll(".calendar-view-menu")
+        .forEach((m) => m.classList.add("hidden"));
+      document
+        .querySelectorAll(".calendar-view-chevron")
+        .forEach((c) => c.classList.remove("rotate-180"));
+
+      if (isHidden) {
+        menu.classList.remove("hidden");
+        chevron.classList.add("rotate-180");
+        btn.setAttribute("aria-expanded", "true");
+      } else {
+        menu.classList.add("hidden");
+        chevron.classList.remove("rotate-180");
+        btn.setAttribute("aria-expanded", "false");
       }
-    };
+    });
 
-    const closeModal = () => {
-      const modal = document.getElementById("eventModal");
-      if (modal) {
-        modal.style.display = "none";
-        document.body.style.overflow = ""; // Restore scroll
-      }
-      resetModalFields();
-    };
+    dropdownContainer
+      .querySelectorAll(".calendar-view-option")
+      .forEach((optionBtn) => {
+        optionBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const viewKey = optionBtn.dataset.viewKey;
+          currentView = viewKey;
+          const cal = targetCalendar || calendarInstance;
+          if (cal && typeof cal.changeView === "function") {
+            cal.changeView(viewKey);
+          }
+          menu.classList.add("hidden");
+          chevron.classList.remove("rotate-180");
+          btn.setAttribute("aria-expanded", "false");
+        });
+      });
+  }
 
-    // Reset modal fields
-    function resetModalFields() {
-      if (getModalTitleEl) getModalTitleEl.value = "";
-      if (getModalStartDateEl) getModalStartDateEl.value = "";
-      if (getModalEndDateEl) getModalEndDateEl.value = "";
-      
-      const getModalIfCheckedRadioBtnEl = document.querySelector(
-        'input[name="event-level"]:checked'
-      );
-      if (getModalIfCheckedRadioBtnEl) {
-        getModalIfCheckedRadioBtnEl.checked = false;
-      }
+  // Modal helpers
+  const openModal = () => {
+    if (modalEl) {
+      modalEl.style.display = "flex";
+      document.body.style.overflow = "hidden";
+    }
+  };
+
+  const closeModal = () => {
+    if (modalEl) {
+      modalEl.style.display = "none";
+      document.body.style.overflow = "";
+    }
+    selectedEvent = null;
+    resetModalFields();
+  };
+
+  function resetModalFields() {
+    if (modalTitleInput) modalTitleInput.value = "";
+    if (modalStartDateInput) modalStartDateInput.value = "";
+    if (modalEndDateInput) modalEndDateInput.value = "";
+    const primaryRadio = document.querySelector(
+      'input[name="event-level"][value="Primary"]'
+    );
+    if (primaryRadio) {
+      primaryRadio.checked = true;
+    }
+  }
+
+  // Add Event Handler
+  const handleOpenAddModal = () => {
+    selectedEvent = null;
+    resetModalFields();
+
+    if (modalHeaderTitle) modalHeaderTitle.textContent = "Add Event";
+    if (modalAddBtn) modalAddBtn.style.display = "flex";
+    if (modalUpdateBtn) modalUpdateBtn.style.display = "none";
+
+    const currentDate = new Date();
+    const yyyy = currentDate.getFullYear();
+    const mm = String(currentDate.getMonth() + 1).padStart(2, "0");
+    const dd = String(currentDate.getDate()).padStart(2, "0");
+    const combineDate = `${yyyy}-${mm}-${dd}`;
+
+    if (modalStartDateInput) modalStartDateInput.value = combineDate;
+    if (modalEndDateInput) modalEndDateInput.value = combineDate;
+
+    openModal();
+  };
+
+  // Date select handler
+  const handleDateSelect = (info) => {
+    selectedEvent = null;
+    resetModalFields();
+
+    if (modalHeaderTitle) modalHeaderTitle.textContent = "Add Event";
+    if (modalAddBtn) modalAddBtn.style.display = "flex";
+    if (modalUpdateBtn) modalUpdateBtn.style.display = "none";
+
+    if (modalStartDateInput)
+      modalStartDateInput.value = info.startStr ? info.startStr.split("T")[0] : "";
+    if (modalEndDateInput) {
+      modalEndDateInput.value = info.endStr
+        ? info.endStr.split("T")[0]
+        : info.startStr
+        ? info.startStr.split("T")[0]
+        : "";
     }
 
-    // Calendar Select function (when user clicks/drags on calendar)
-    const calendarSelect = (info) => {
-      resetModalFields();
+    openModal();
+  };
 
-      // Update modal header
-      if (getModalHeaderEl) {
-        getModalHeaderEl.textContent = "Add Event";
-      }
+  // Event click handler
+  const handleEventClick = (info) => {
+    const eventObj = info.event;
+    if (eventObj.url) {
+      window.open(eventObj.url);
+      info.jsEvent.preventDefault();
+      return;
+    }
 
-      // Show Add button, hide Update button
-      if (getModalAddBtnEl) getModalAddBtnEl.style.display = "flex";
-      if (getModalUpdateBtnEl) getModalUpdateBtnEl.style.display = "none";
+    selectedEvent = eventObj;
+    const eventLevel = eventObj.extendedProps?.calendar || "Primary";
+    const checkedRadio = document.querySelector(
+      `input[name="event-level"][value="${eventLevel}"]`
+    );
 
-      // Set dates from selection
-      if (getModalStartDateEl) getModalStartDateEl.value = info.startStr;
-      if (getModalEndDateEl) {
-        getModalEndDateEl.value = info.endStr || info.startStr;
-      }
+    if (modalHeaderTitle) modalHeaderTitle.textContent = "Edit Event";
+    if (modalAddBtn) modalAddBtn.style.display = "none";
+    if (modalUpdateBtn) {
+      modalUpdateBtn.style.display = "flex";
+      modalUpdateBtn.dataset.fcEventPublicId = eventObj.id;
+    }
 
-      openModal();
-    };
+    if (modalTitleInput) modalTitleInput.value = eventObj.title;
+    if (modalStartDateInput)
+      modalStartDateInput.value = eventObj.startStr
+        ? eventObj.startStr.split("T")[0]
+        : "";
+    if (modalEndDateInput)
+      modalEndDateInput.value = eventObj.endStr
+        ? eventObj.endStr.split("T")[0]
+        : eventObj.startStr
+        ? eventObj.startStr.split("T")[0]
+        : "";
 
-    // Calendar AddEvent button click
-    const calendarAddEvent = () => {
-      resetModalFields();
+    if (checkedRadio) checkedRadio.checked = true;
 
-      // Update modal header
-      if (getModalHeaderEl) {
-        getModalHeaderEl.textContent = "Add Event";
-      }
+    openModal();
+  };
 
-      // Show Add button, hide Update button
-      if (getModalAddBtnEl) getModalAddBtnEl.style.display = "flex";
-      if (getModalUpdateBtnEl) getModalUpdateBtnEl.style.display = "none";
+  // Initialize FullCalendar v7 matching Calendar.tsx
+  const calendar = new Calendar(calendarEl, {
+    plugins: [
+      themePlugin,
+      dayGridPlugin,
+      timeGridPlugin,
+      interactionPlugin,
+      multiMonthPlugin,
+    ],
+    initialView: "dayGridMonth",
+    direction: isRtl ? "rtl" : "ltr",
 
-      // Set default start date to today
-      const currentDate = new Date();
-      const yyyy = currentDate.getFullYear();
-      const mm = String(currentDate.getMonth() + 1).padStart(2, "0");
-      const dd = String(currentDate.getDate()).padStart(2, "0");
-      const combineDate = `${yyyy}-${mm}-${dd}`;
+    // Toolbar / Header configuration
+    headerToolbar: {
+      start: "prev,next addEventButton",
+      center: "title",
+      end: "",
+    },
+    headerToolbarClass:
+      "sticky top-0! flex-col gap-4 z-20! [padding-inline:24px]! pt-6 sm:flex-row",
+    toolbarTitleClass: "text-lg! font-medium! text-gray-800 dark:text-white/90",
+    toolbarSectionClass: "ta-toolbar-section",
+    buttonGroupClass: "gap-2",
+    buttons: {
+      prev: {
+        iconContent: {
+          html: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="size-6 bg-transparent text-gray-700 rtl:rotate-180 dark:text-gray-400"><path d="M15 18l-6-6 6-6" /></svg>`,
+        },
+        className:
+          "flex size-10! p-0! items-center justify-center! rounded-lg! border! bg-transparent! border-gray-200! text-gray-700 hover:border-gray-200 hover:bg-gray-50! focus:shadow-none active:border-gray-200! active:bg-transparent! active:shadow-none! dark:border-gray-800! dark:text-gray-400 dark:hover:border-gray-800 dark:hover:bg-gray-900! dark:active:border-gray-800!",
+      },
+      next: {
+        iconContent: {
+          html: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="size-6 bg-transparent text-gray-700 rtl:rotate-180 dark:text-gray-400"><path d="M9 18l6-6-6-6" /></svg>`,
+        },
+        className:
+          "flex size-10! p-0! items-center justify-center! rounded-lg! border! bg-transparent! border-gray-200! text-gray-700 hover:border-gray-200 hover:bg-gray-50! focus:shadow-none active:border-gray-200! active:bg-transparent! active:shadow-none! dark:border-gray-800! dark:text-gray-400 dark:hover:border-gray-800 dark:hover:bg-gray-900! dark:active:border-gray-800!",
+      },
+      addEventButton: {
+        text: "Add Event +",
+        click: handleOpenAddModal,
+        className:
+          "rounded-lg! border-0! bg-brand-500! px-4! py-2.5! text-sm! font-medium! text-white hover:bg-brand-600! focus:shadow-none! w-auto!",
+      },
+    },
 
-      if (getModalStartDateEl) getModalStartDateEl.value = combineDate;
-
-      openModal();
-    };
-
-    // Calendar Event Click function (when user clicks existing event)
-    const calendarEventClick = (info) => {
-      const eventObj = info.event;
-
-      if (eventObj.url) {
-        window.open(eventObj.url);
-        info.jsEvent.preventDefault();
-      } else {
-        resetModalFields();
-
-        // Update modal header
-        if (getModalHeaderEl) {
-          getModalHeaderEl.textContent = "Edit Event";
-        }
-
-        // Get event details
-        const getModalEventId = eventObj.id;
-        const getModalEventLevel = eventObj.extendedProps.calendar;
-
-        // Set form values
-        if (getModalTitleEl) getModalTitleEl.value = eventObj.title;
-        if (getModalStartDateEl) {
-          getModalStartDateEl.value = eventObj.startStr.split("T")[0];
-        }
-        if (getModalEndDateEl) {
-          getModalEndDateEl.value = eventObj.endStr
-            ? eventObj.endStr.split("T")[0]
-            : "";
-        }
-
-        // Check the correct radio button
-        const getModalCheckedRadioBtnEl = document.querySelector(
-          `input[value="${getModalEventLevel}"]`
-        );
-        if (getModalCheckedRadioBtnEl) {
-          getModalCheckedRadioBtnEl.checked = true;
-        }
-
-        // Store event ID for update
-        if (getModalUpdateBtnEl) {
-          getModalUpdateBtnEl.dataset.fcEventPublicId = getModalEventId;
-        }
-
-        // Hide Add button, show Update button
-        if (getModalAddBtnEl) getModalAddBtnEl.style.display = "none";
-        if (getModalUpdateBtnEl) getModalUpdateBtnEl.style.display = "flex";
-
-        openModal();
-      }
-    };
-
-    // Initialize Calendar
-    const calendar = new Calendar(calendarEl, {
-      plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
-      selectable: true,
-      initialView: "dayGridMonth",
-      initialDate: `${newDate.getFullYear()}-${getDynamicMonth()}-07`,
-      headerToolbar: calendarHeaderToolbar,
-      events: calendarEventsList,
-      select: calendarSelect,
-      eventClick: calendarEventClick,
-      displayEventTime: false, // Hide time display
-      customButtons: {
-        addEventButton: {
-          text: "Add Event +",
-          click: calendarAddEvent,
+    // View specific styles
+    views: {
+      multiMonthYear: {
+        aspectRatio: 1.2,
+        contentHeight: "auto",
+        height: "auto",
+        multiMonthMaxColumns: 3,
+        tableClass: "overflow-visible! rounded-lg!",
+        singleMonthMinWidth: 320,
+        showNonCurrentDates: true,
+        singleMonthHeaderInnerClass:
+          "text-sm font-medium! text-gray-800 dark:text-white/90",
+        dayHeaderClass: (data) =>
+          data.inPopover
+            ? "relative! border-b! border-gray-200! bg-gray-50/70! px-4! py-3! text-start! dark:border-gray-800! dark:bg-gray-800/50!"
+            : "border-0! bg-gray-50 py-2! dark:bg-gray-900",
+        dayHeaderInnerClass: (data) =>
+          data.inPopover
+            ? "text-sm! font-semibold! text-gray-800! dark:text-white/90!"
+            : "py-1 text-xs font-medium text-gray-400 uppercase",
+        dayCellClass: (data) => {
+          if (data.inPopover) return "bg-transparent! p-3!";
+          let cls = "relative! p-0.5 sm:p-1!";
+          if (data.isToday)
+            cls += " isolate bg-gray-100! font-semibold text-brand-500";
+          if (data.isOther) cls += " bg-transparent!";
+          return cls;
+        },
+        dayCellInnerClass: (data) =>
+          data.inPopover
+            ? "flex custom-scrollbar max-h-60 flex-col gap-1.5 overflow-y-auto"
+            : "",
+        dayCellTopInnerClass: "text-sm!",
+        dayMaxEvents: 0,
+        rowMoreLinkClass:
+          "absolute! -top-1! -start-0.5! z-10! border-0! bg-transparent! p-0!",
+        rowMoreLinkInnerClass: "overflow-visible!",
+        moreLinkContent() {
+          return {
+            html: `<span><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5.5 text-brand-500"><path d="M19 3v17a1 1 0 01-1.496.868l-4.512-2.578a2 2 0 00-1.984 0l-4.512 2.578A1 1 0 015 20V3z" /></svg></span>`,
+          };
         },
       },
-      // eventClassNames({ event: calendarEvent }) {
-      //   const getColorValue =
-      //     calendarsEvents[calendarEvent._def.extendedProps.calendar];
-      //   return [`event-fc-color`, `fc-bg-${getColorValue}`];
-      // },
-      // Optional: Custom event content without time
-      eventContent(eventInfo) {
-        const colorClass = `fc-bg-${eventInfo.event.extendedProps.calendar.toLowerCase()}`
+      dayGridMonth: {
+        dayMaxEvents: 2,
+        dayHeaderAlign: (data) => (data.inPopover ? "start" : "center"),
+        dayHeaderClass: (data) =>
+          data.inPopover
+            ? "relative! border-b! border-gray-200! bg-gray-50/70! px-4! py-3! text-start! dark:border-gray-800! dark:bg-gray-800/50!"
+            : "border-x-0! border-t border-gray-200! bg-gray-50 dark:border-gray-800! dark:bg-gray-900",
+        dayHeaderInnerClass: (data) =>
+          data.inPopover
+            ? "text-sm! font-semibold! text-gray-800! dark:text-white/90!"
+            : "px-5! py-4! text-sm font-medium text-gray-400 uppercase",
+        dayCellClass: (data) => {
+          if (data.inPopover) return "bg-transparent! p-3!";
+          return `bg-transparent! p-2! ${
+            data.isToday ? "bg-gray-100! dark:bg-gray-800/40!" : ""
+          }`;
+        },
+        dayCellInnerClass: (data) => {
+          if (data.inPopover)
+            return "flex custom-scrollbar max-h-60 flex-col gap-1.5 overflow-y-auto";
+          return data.isToday ? "rounded-sm!" : "";
+        },
+        moreLinkClass:
+          "border-0! bg-transparent! p-0! hover:bg-transparent! focus:outline-none",
+        moreLinkContent(args) {
+          return {
+            html: `<span class="fc-more-link-badge inline-flex items-center rounded-sm bg-brand-50 px-1.5 py-0.5 text-xs font-medium text-brand-600 transition-colors hover:bg-brand-100 dark:bg-brand-500/15 dark:text-brand-400 dark:hover:bg-brand-500/25">+${args.num} more</span>`,
+          };
+        },
+      },
+      timeGridWeek: {
+        slotDuration: "01:00:00",
+        slotMinHeight: 56,
+        expandRows: true,
+        allDaySlot: true,
+        dayHeaderContent: (arg) => {
+          const weekday = new Intl.DateTimeFormat(locale, {
+            weekday: "short",
+          })
+            .format(arg.date)
+            .toUpperCase();
+          const day = new Intl.DateTimeFormat(locale, {
+            day: "numeric",
+          }).format(arg.date);
+          return `${weekday} - ${day}`;
+        },
+        dayHeaderClass: (data) =>
+          `border-x-0! border-t! border-b! border-gray-200! bg-gray-50! dark:border-gray-800! dark:bg-gray-900! ${
+            data.isToday ? "bg-gray-100/70! dark:bg-gray-800/60!" : ""
+          }`,
+        dayHeaderInnerClass: (data) =>
+          `px-3! py-3.5! text-center! text-xs! font-medium! text-gray-500! uppercase! dark:text-gray-400! ${
+            data.isToday ? "font-semibold! text-brand-500! dark:text-brand-400!" : ""
+          }`,
+        slotHeaderDividerClass:
+          "border-e! border-s-0! border-y-0! border-gray-200! dark:border-gray-800!",
+        slotHeaderClass:
+          "px-3! py-2! text-start! text-xs! font-medium! text-gray-400! dark:text-gray-500!",
+        slotLaneClass: "border-gray-100! dark:border-gray-800/60!",
+        dayLaneClass: (data) =>
+          `border-gray-200! dark:border-gray-800! ${
+            data.isToday ? "bg-brand-50/15! dark:bg-brand-500/[0.03]!" : ""
+          }`,
+        allDayDividerClass:
+          "border-b! border-t-0! border-x-0! border-gray-200! p-0! bg-transparent! dark:border-gray-800!",
+        allDayHeaderClass:
+          "border-0! bg-gray-50! text-xs! font-medium! text-gray-500! dark:border-0! dark:bg-gray-900! dark:text-gray-400!",
+      },
+      timeGridDay: {
+        slotDuration: "00:30:00",
+        slotMinHeight: 48,
+        expandRows: true,
+        allDaySlot: true,
+        dayHeaderContent: (arg) => {
+          const weekday = new Intl.DateTimeFormat(locale, {
+            weekday: "short",
+          })
+            .format(arg.date)
+            .toUpperCase();
+          const day = new Intl.DateTimeFormat(locale, {
+            day: "numeric",
+          }).format(arg.date);
+          return `${weekday} - ${day}`;
+        },
+        dayHeaderClass: (data) =>
+          `border-x-0! border-t! border-b! border-gray-200! bg-gray-50! dark:border-gray-800! dark:bg-gray-900! ${
+            data.isToday ? "bg-gray-100/70! dark:bg-gray-800/60!" : ""
+          }`,
+        dayHeaderInnerClass: (data) =>
+          `px-4! py-3.5! text-center! text-xs! font-medium! text-gray-500! uppercase! dark:text-gray-400! ${
+            data.isToday ? "font-semibold! text-brand-500! dark:text-brand-400!" : ""
+          }`,
+        slotHeaderDividerClass:
+          "border-e! border-s-0! border-y-0! border-gray-200! dark:border-gray-800!",
+        slotHeaderClass:
+          "px-3! py-2! text-start! text-xs! font-medium! text-gray-400! dark:text-gray-500!",
+        slotLaneClass: "border-gray-100! dark:border-gray-800/60!",
+        dayLaneClass: (data) =>
+          `border-gray-200! dark:border-gray-800! ${
+            data.isToday ? "bg-brand-50/15! dark:bg-brand-500/[0.03]!" : ""
+          }`,
+        allDayDividerClass:
+          "border-b! border-t-0! border-x-0! border-gray-200! p-0! bg-transparent! dark:border-gray-800!",
+        allDayHeaderClass:
+          "border-0! bg-gray-50! text-xs! font-medium! text-gray-500! dark:border-0! dark:bg-gray-900! dark:text-gray-400!",
+      },
+    },
+
+    // Calendar Body Customization
+    borderless: true,
+    expandRows: true,
+    slotMinHeight: 56,
+    slotHeaderDividerClass:
+      "border-e! border-s-0! border-y-0! border-gray-200! dark:border-gray-800!",
+    allDayDividerClass:
+      "border-b! border-t-0! border-x-0! border-gray-200! p-0! bg-transparent! dark:border-gray-800!",
+    eventClass: "focus:shadow-none",
+    nowIndicator: false,
+    columnEventClass:
+      "bg-transparent! border-0! p-1! shadow-none! hover:shadow-none! focus:outline-none",
+    columnEventInnerClass: "p-0! border-0! bg-transparent! h-full",
+    tableHeaderSticky: true,
+    tableClass: "overflow-hidden",
+    rowEventClass:
+      "bg-transparent! border-0! px-1! py-0.5! shadow-none! hover:shadow-none! focus:outline-none",
+    rowEventInnerClass: "p-0! border-0! bg-transparent!",
+    popoverFormat: { month: "short", day: "numeric", year: "numeric" },
+    popoverClass:
+      "z-99999! w-72 max-w-[calc(100vw-32px)] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-lg dark:border-gray-800 dark:bg-gray-900",
+    popoverCloseClass:
+      "absolute end-3 top-2.5 flex size-7 cursor-pointer items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 focus:outline-none dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white",
+    popoverCloseContent: {
+      html: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><path d="M18 6L6 18M6 6l12 12" /></svg>`,
+    },
+
+    datesSet(arg) {
+      currentView = arg.view.type;
+      requestAnimationFrame(() => {
+        const chunk = calendarEl.querySelector(".ta-toolbar-section:last-child");
+        if (chunk) {
+          renderViewSelect(chunk, currentView, calendarInstance);
+        }
+      });
+    },
+
+    selectable: true,
+    select: handleDateSelect,
+    events: INITIAL_EVENTS,
+    eventClick: handleEventClick,
+
+    // Event Content Rendering matching CalendarEventItem.tsx
+    eventContent(eventInfo) {
+      const calendarLevel = (
+        eventInfo.event.extendedProps?.calendar || "primary"
+      ).toLowerCase();
+
+      const colorMap = {
+        success: {
+          bg: "border border-success-100 bg-success-50 dark:border-success-500/20 dark:bg-success-500/15",
+          dot: "bg-success-500",
+          title: "text-success-700 dark:text-success-400",
+          time: "text-success-600/80 dark:text-success-400/80",
+        },
+        danger: {
+          bg: "border border-error-100 bg-error-50 dark:border-error-500/20 dark:bg-error-500/15",
+          dot: "bg-error-500",
+          title: "text-error-700 dark:text-error-400",
+          time: "text-error-600/80 dark:text-error-400/80",
+        },
+        primary: {
+          bg: "border border-brand-100 bg-brand-50 dark:border-brand-500/20 dark:bg-brand-500/15",
+          dot: "bg-brand-500",
+          title: "text-brand-700 dark:text-brand-400",
+          time: "text-brand-600/80 dark:text-brand-400/80",
+        },
+        warning: {
+          bg: "border border-orange-100 bg-orange-50 dark:border-orange-500/20 dark:bg-orange-500/15",
+          dot: "bg-orange-500",
+          title: "text-orange-700 dark:text-orange-400",
+          time: "text-orange-600/80 dark:text-orange-400/80",
+        },
+      };
+
+      const colors = colorMap[calendarLevel] || colorMap.primary;
+      const isTimeGridView =
+        !eventInfo.event?.allDay &&
+        eventInfo.view?.type &&
+        eventInfo.view.type.startsWith("timeGrid");
+
+      if (isTimeGridView) {
         return {
           html: `
-            <div class="event-fc-color flex fc-event-main ${colorClass} p-1 rounded-sm">
-              <div class="fc-daygrid-event-dot"></div>
-              <div class="fc-event-time">${eventInfo.timeText}</div>
-              <div class="fc-event-title">${eventInfo.event.title}</div>
+            <div dir="ltr" class="event-fc-color flex h-full w-full flex-col justify-start overflow-hidden rounded-lg p-1.5 transition-colors ${
+              colors.bg
+            }">
+              <div class="flex items-center gap-1.5">
+                <div class="size-2 shrink-0 rounded-full ${colors.dot}"></div>
+                <div class="truncate text-xs font-semibold leading-tight ${
+                  colors.title
+                }">${eventInfo.event.title || ""}</div>
+              </div>
+              ${
+                eventInfo.timeText
+                  ? `<div class="mt-0.5 truncate ps-3.5 text-[11px] font-medium leading-tight ${colors.time}">${eventInfo.timeText}</div>`
+                  : ""
+              }
             </div>
           `,
-        }
-      },
-    });
-
-    // Update Calendar Event
-    // if (getModalUpdateBtnEl) {
-    //   getModalUpdateBtnEl.addEventListener("click", () => {
-    //     const getPublicID = getModalUpdateBtnEl.dataset.fcEventPublicId;
-    //     const getTitleUpdatedValue = getModalTitleEl.value;
-    //     const setModalStartDateValue = getModalStartDateEl.value;
-    //     const setModalEndDateValue = getModalEndDateEl.value;
-    //     const getEvent = calendar.getEventById(getPublicID);
-    //     const getModalUpdatedCheckedRadioBtnEl = document.querySelector(
-    //       'input[name="event-level"]:checked'
-    //     );
-
-    //     const getModalUpdatedCheckedRadioBtnValue =
-    //       getModalUpdatedCheckedRadioBtnEl
-    //         ? getModalUpdatedCheckedRadioBtnEl.value
-    //         : "";
-
-    //     if (getEvent) {
-    //       getEvent.setProp("title", getTitleUpdatedValue);
-    //       getEvent.setDates(setModalStartDateValue, setModalEndDateValue);
-    //       getEvent.setExtendedProp("calendar", getModalUpdatedCheckedRadioBtnValue);
-    //     }
-        
-    //     closeModal();
-    //   });
-    // }
-    if (getModalUpdateBtnEl) {
-      getModalUpdateBtnEl.addEventListener("click", () => {
-        const getPublicID = getModalUpdateBtnEl.dataset.fcEventPublicId;
-        const getTitleUpdatedValue = getModalTitleEl.value;
-        const setModalStartDateValue = getModalStartDateEl.value;
-        const setModalEndDateValue = getModalEndDateEl.value;
-        const getEvent = calendar.getEventById(getPublicID);
-        const getModalUpdatedCheckedRadioBtnEl = document.querySelector(
-          'input[name="event-level"]:checked'
-        );
-
-        const getModalUpdatedCheckedRadioBtnValue =
-          getModalUpdatedCheckedRadioBtnEl
-            ? getModalUpdatedCheckedRadioBtnEl.value
-            : "";
-
-        if (getEvent) {
-          // Remove the old event
-          getEvent.remove();
-          
-          // Add updated event with all properties
-          calendar.addEvent({
-            id: getPublicID,
-            title: getTitleUpdatedValue,
-            start: setModalStartDateValue,
-            end: setModalEndDateValue,
-            allDay: true,
-            extendedProps: { calendar: getModalUpdatedCheckedRadioBtnValue },
-          });
-        }
-        
-        closeModal();
-      });
-    }
-
-    // Add Calendar Event
-    if (getModalAddBtnEl) {
-      getModalAddBtnEl.addEventListener("click", () => {
-        const getModalCheckedRadioBtnEl = document.querySelector(
-          'input[name="event-level"]:checked'
-        );
-
-        const getTitleValue = getModalTitleEl.value;
-        const setModalStartDateValue = getModalStartDateEl.value;
-        const setModalEndDateValue = getModalEndDateEl.value;
-        const getModalCheckedRadioBtnValue = getModalCheckedRadioBtnEl
-          ? getModalCheckedRadioBtnEl.value
-          : "";
-
-        calendar.addEvent({
-          id: Date.now().toString(),
-          title: getTitleValue,
-          start: setModalStartDateValue,
-          end: setModalEndDateValue,
-          allDay: true,
-          extendedProps: { calendar: getModalCheckedRadioBtnValue },
-        });
-        
-        closeModal();
-      });
-    }
-
-    // Render Calendar
-    calendar.render();
-
-    // Close modal event listeners
-    document.querySelectorAll(".modal-close-btn").forEach((btn) => {
-      btn.addEventListener("click", closeModal);
-    });
-
-    // Close when clicking outside modal
-    window.addEventListener("click", (event) => {
-      const modal = document.getElementById("eventModal");
-      if (event.target === modal) {
-        closeModal();
+        };
       }
+
+      return {
+        html: `
+          <div dir="ltr" class="event-fc-color flex items-center rounded-lg py-1.5 ps-2.5 pe-3 transition-colors ${
+            colors.bg
+          }">
+            <div class="fc-daygrid-event-dot ms-0 me-2 h-3.5 w-1 shrink-0 rounded-full border-none ${
+              colors.dot
+            }"></div>
+            ${
+              eventInfo.timeText
+                ? `<div class="fc-event-time me-1.5 p-0 text-xs font-normal text-gray-500 dark:text-gray-400">${eventInfo.timeText}</div>`
+                : ""
+            }
+            <div class="fc-event-title truncate p-0 text-xs font-medium text-gray-700 dark:text-white">${
+              eventInfo.event.title || ""
+            }</div>
+          </div>
+        `,
+      };
+    },
+  });
+
+  // Modal Save/Update Event Button Handlers
+  if (modalUpdateBtn) {
+    modalUpdateBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const publicId = modalUpdateBtn.dataset.fcEventPublicId;
+      const titleVal =
+        modalTitleInput && modalTitleInput.value.trim() !== ""
+          ? modalTitleInput.value.trim()
+          : "Event";
+      const startDateVal = modalStartDateInput ? modalStartDateInput.value : "";
+      const endDateVal = modalEndDateInput ? modalEndDateInput.value : "";
+      const checkedRadio = document.querySelector(
+        'input[name="event-level"]:checked'
+      );
+      const levelVal = checkedRadio ? checkedRadio.value : "Primary";
+
+      const existingEvent = calendar.getEventById(publicId);
+      if (existingEvent) {
+        existingEvent.remove();
+        calendar.addEvent({
+          id: publicId,
+          title: titleVal,
+          start: startDateVal,
+          end: endDateVal || startDateVal,
+          allDay: true,
+          extendedProps: { calendar: levelVal },
+        });
+      }
+      closeModal();
     });
   }
-}
 
-export default calendarInit;
+  if (modalAddBtn) {
+    modalAddBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const checkedRadio = document.querySelector(
+        'input[name="event-level"]:checked'
+      );
+      const titleVal =
+        modalTitleInput && modalTitleInput.value.trim() !== ""
+          ? modalTitleInput.value.trim()
+          : "New Event";
+      let startDateVal = modalStartDateInput ? modalStartDateInput.value : "";
+      const endDateVal = modalEndDateInput ? modalEndDateInput.value : "";
+      const levelVal = checkedRadio ? checkedRadio.value : "Primary";
+
+      if (!startDateVal) {
+        const currentDate = new Date();
+        const yyyy = currentDate.getFullYear();
+        const mm = String(currentDate.getMonth() + 1).padStart(2, "0");
+        const dd = String(currentDate.getDate()).padStart(2, "0");
+        startDateVal = `${yyyy}-${mm}-${dd}`;
+      }
+
+      calendar.addEvent({
+        id: Date.now().toString(),
+        title: titleVal,
+        start: startDateVal,
+        end: endDateVal || startDateVal,
+        allDay: true,
+        extendedProps: { calendar: levelVal },
+      });
+
+      closeModal();
+    });
+  }
+
+  // Render Calendar
+  calendarInstance = calendar;
+  calendar.render();
+
+  requestAnimationFrame(() => {
+    const chunk = calendarEl.querySelector(".ta-toolbar-section:last-child");
+    if (chunk) {
+      renderViewSelect(chunk, currentView, calendar);
+    }
+  });
+
+  // Close modal event listeners
+  document.querySelectorAll(".modal-close-btn").forEach((btn) => {
+    btn.addEventListener("click", closeModal);
+  });
+
+  // Close dropdown on click outside
+  window.addEventListener("click", (event) => {
+    if (modalEl && event.target === modalEl) {
+      closeModal();
+    }
+    if (!event.target.closest(".calendar-view-dropdown")) {
+      document
+        .querySelectorAll(".calendar-view-menu")
+        .forEach((m) => m.classList.add("hidden"));
+      document
+        .querySelectorAll(".calendar-view-chevron")
+        .forEach((c) => c.classList.remove("rotate-180"));
+    }
+  });
+}

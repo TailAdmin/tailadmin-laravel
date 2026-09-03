@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}" class="h-full bg-gray-50 dark:bg-gray-900">
 
 <head>
     <meta charset="utf-8">
@@ -11,54 +11,95 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    <!-- Alpine.js -->
-    {{-- <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script> --}}
-
+    <!-- Theme Store -->
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
     <!-- Theme Store -->
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.store('theme', {
                 init() {
                     const savedTheme = localStorage.getItem('theme');
-                    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' :
-                        'light';
-                    this.theme = savedTheme || systemTheme;
+                    this.theme = savedTheme === 'dark' ? 'dark' : 'light';
                     this.updateTheme();
                 },
                 theme: 'light',
-                toggle() {
-                    this.theme = this.theme === 'light' ? 'dark' : 'light';
-                    localStorage.setItem('theme', this.theme);
+                resolvedTheme: 'light',
+                set(value) {
+                    value = value === 'dark' ? 'dark' : 'light';
+                    this.theme = value;
+                    localStorage.setItem('theme', value);
                     this.updateTheme();
+                    window.dispatchEvent(new CustomEvent('theme-changed', { detail: value }));
+                },
+                toggle() {
+                    this.set(this.resolvedTheme === 'dark' ? 'light' : 'dark');
                 },
                 updateTheme() {
                     const html = document.documentElement;
-                    const body = document.body;
-                    if (this.theme === 'dark') {
+                    const isDark = this.theme === 'dark';
+                    if (isDark) {
                         html.classList.add('dark');
-                        body.classList.add('dark', 'bg-gray-900');
                     } else {
                         html.classList.remove('dark');
-                        body.classList.remove('dark', 'bg-gray-900');
+                    }
+
+                    this.resolvedTheme = isDark ? 'dark' : 'light';
+                    html.setAttribute('data-color-scheme', this.resolvedTheme);
+                    html.dataset['theme'] = this.resolvedTheme;
+                    html.style.colorScheme = this.resolvedTheme;
+                    if (document.body) {
+                        document.body.dataset['theme'] = this.resolvedTheme;
+                        document.body.style.colorScheme = this.resolvedTheme;
                     }
                 }
             });
 
             Alpine.store('sidebar', {
-                // Initialize based on screen size
-                isExpanded: window.innerWidth >= 1280, // true for desktop, false for mobile
+                isExpanded: false,
                 isMobileOpen: false,
                 isHovered: false,
 
+                init() {
+                    const savedState = localStorage.getItem('sidebarExpanded');
+                    if (window.innerWidth >= 1280) {
+                        this.isExpanded = savedState === null ? true : savedState === 'true';
+                    } else {
+                        this.isExpanded = false;
+                    }
+                    this.isMobileOpen = false;
+
+                    window.addEventListener('resize', () => {
+                        this.handleResize();
+                    });
+                },
+
+                handleResize() {
+                    if (window.innerWidth < 1280) {
+                        if (this.isMobileOpen) {
+                             this.isMobileOpen = false;
+                        }
+                    } else {
+                        this.isMobileOpen = false;
+                        const savedState = localStorage.getItem('sidebarExpanded');
+                        this.isExpanded = savedState === null ? true : savedState === 'true';
+                    }
+                },
+
                 toggleExpanded() {
                     this.isExpanded = !this.isExpanded;
-                    // When toggling desktop sidebar, ensure mobile menu is closed
                     this.isMobileOpen = false;
+                    
+                    if (window.innerWidth >= 1280) {
+                        localStorage.setItem('sidebarExpanded', this.isExpanded);
+                    }
                 },
 
                 toggleMobileOpen() {
                     this.isMobileOpen = !this.isMobileOpen;
-                    // Don't modify isExpanded when toggling mobile menu
                 },
 
                 setMobileOpen(val) {
@@ -66,7 +107,6 @@
                 },
 
                 setHovered(val) {
-                    // Only allow hover effects on desktop when sidebar is collapsed
                     if (window.innerWidth >= 1280 && !this.isExpanded) {
                         this.isHovered = val;
                     }
@@ -79,48 +119,28 @@
     <script>
         (function() {
             const savedTheme = localStorage.getItem('theme');
-            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            const theme = savedTheme || systemTheme;
-            if (theme === 'dark') {
+            const isDark = savedTheme === 'dark';
+            if (isDark) {
                 document.documentElement.classList.add('dark');
-                document.body.classList.add('dark', 'bg-gray-900');
+                document.documentElement.setAttribute('data-color-scheme', 'dark');
             } else {
                 document.documentElement.classList.remove('dark');
-                document.body.classList.remove('dark', 'bg-gray-900');
+                document.documentElement.setAttribute('data-color-scheme', 'light');
             }
         })();
     </script>
     
+
 </head>
 
-<body
-    x-data="{ 'loaded': true}"
-    x-init="$store.sidebar.isExpanded = window.innerWidth >= 1280;
-    const checkMobile = () => {
-        if (window.innerWidth < 1280) {
-            $store.sidebar.setMobileOpen(false);
-            $store.sidebar.isExpanded = false;
-        } else {
-            $store.sidebar.isMobileOpen = false;
-            $store.sidebar.isExpanded = true;
-        }
-    };
-    window.addEventListener('resize', checkMobile);">
+<body>
 
-    {{-- preloader --}}
-    <x-common.preloader/>
-    {{-- preloader end --}}
-
-    <div class="min-h-screen xl:flex">
+    <div class="min-h-screen xl:flex sidebar-expanded" x-data :class="{ 'sidebar-expanded': $store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen }">
         @include('layouts.backdrop')
         @include('layouts.sidebar')
 
-        <div class="flex-1 transition-all duration-300 ease-in-out"
-            :class="{
-                'xl:ml-[290px]': $store.sidebar.isExpanded || $store.sidebar.isHovered,
-                'xl:ml-[90px]': !$store.sidebar.isExpanded && !$store.sidebar.isHovered,
-                'ml-0': $store.sidebar.isMobileOpen
-            }">
+        {{-- transition-all duration-300 ease-in-out --}}
+        <div class="flex-1 ml-0 ltr:xl:ml-[90px] rtl:xl:ml-0 rtl:xl:mr-[90px] [.sidebar-expanded_&]:ltr:xl:ml-[290px] [.sidebar-expanded_&]:rtl:xl:ml-0 [.sidebar-expanded_&]:rtl:xl:mr-[290px] transition-all duration-300 ease-in-out">
             <!-- app header start -->
             @include('layouts.app-header')
             <!-- app header end -->

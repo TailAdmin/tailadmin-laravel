@@ -20,9 +20,7 @@
             Alpine.store('theme', {
                 init() {
                     const savedTheme = localStorage.getItem('theme');
-                    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' :
-                        'light';
-                    this.theme = savedTheme || systemTheme;
+                    this.theme = savedTheme === 'dark' ? 'dark' : 'light';
                     this.updateTheme();
                 },
                 theme: 'light',
@@ -79,20 +77,30 @@
     <script>
         (function() {
             const savedTheme = localStorage.getItem('theme');
-            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            const theme = savedTheme || systemTheme;
+            const theme = savedTheme === 'dark' ? 'dark' : 'light';
             if (theme === 'dark') {
                 document.documentElement.classList.add('dark');
-                document.body.classList.add('dark', 'bg-gray-900');
+                if (document.body) document.body.classList.add('dark', 'bg-gray-900');
             } else {
                 document.documentElement.classList.remove('dark');
-                document.body.classList.remove('dark', 'bg-gray-900');
+                if (document.body) document.body.classList.remove('dark', 'bg-gray-900');
+            }
+        })();
+    </script>
+    <!-- Apply RTL mode immediately to prevent flash -->
+    <script>
+        (function() {
+            const savedDir = localStorage.getItem("dir");
+            if (savedDir === "rtl") {
+                document.documentElement.setAttribute("dir", "rtl");
+            } else {
+                document.documentElement.setAttribute("dir", "ltr");
             }
         })();
     </script>
 </head>
 
-<body x-data="{ 'loaded': true}" x-init="$store.sidebar.isExpanded = window.innerWidth >= 1280;
+<body x-init="$store.sidebar.isExpanded = window.innerWidth >= 1280;
 const checkMobile = () => {
     if (window.innerWidth < 1280) {
         $store.sidebar.setMobileOpen(false);
@@ -103,10 +111,6 @@ const checkMobile = () => {
     }
 };
 window.addEventListener('resize', checkMobile);">
-
-    {{-- preloader --}}
-    <x-common.preloader/>
-    {{-- preloader end --}}
 
     @yield('content')
 

@@ -10,10 +10,11 @@
     </button>
     
     <div x-show="openDropDown" @click.outside="openDropDown = false" 
-         class="absolute right-0 z-40 w-40 p-2 space-y-1 bg-white border border-gray-200 shadow-theme-lg dark:bg-gray-dark top-full rounded-2xl dark:border-gray-800">
+         class="absolute ltr:right-0 rtl:left-0 ltr:left-auto rtl:right-auto z-40 w-40 p-2 space-y-1 bg-white border border-gray-200 shadow-theme-lg dark:bg-gray-dark top-full rounded-2xl dark:border-gray-800"
+         x-cloak>
         @forelse($items as $item)
-            <button class="flex w-full px-3 py-2 font-medium text-left text-gray-500 rounded-lg text-theme-xs hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
-                {{ $item }}
+            <button class="flex w-full px-3 py-2 font-medium ltr:text-left rtl:text-right text-gray-500 rounded-lg text-theme-xs hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
+                {{ __($item) }}
             </button>
         @empty
             {{ $slot }}

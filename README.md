@@ -59,7 +59,88 @@ node -v
 npm -v
 ```
 
-## 🚀 Quick Start Installation
+## 🐳 Docker & Laravel Sail Setup (Official)
+
+TailAdmin Laravel includes pre-configured, official support for **Docker** powered by **Laravel Sail** (PHP 8.4, MySQL 8.0, Redis, and Mailpit).
+
+### Prerequisites
+Make sure [Docker Desktop](https://www.docker.com/products/docker-desktop/) is installed and running on your machine.
+
+### Quick Start with Docker & Sail
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/TailAdmin/tailadmin-laravel.git
+   cd tailadmin-laravel
+   ```
+
+2. **Configure environment:**
+   ```bash
+   cp .env.example .env
+   ```
+   In your `.env` file, ensure container networking is set:
+   ```env
+   DB_HOST=mysql
+   DB_USERNAME=sail
+   DB_PASSWORD=password
+   REDIS_HOST=redis
+   ```
+
+3. **Install Composer dependencies (if PHP is not installed locally):**
+   ```bash
+   docker run --rm \
+       -u "$(id -u):$(id -g)" \
+       -v "$(pwd):/var/www/html" \
+       -w /var/www/html \
+       laravelsail/php84-composer:latest \
+       composer install --ignore-platform-reqs
+   ```
+   *(Or simply run `composer install` if you have PHP and Composer locally).*
+
+4. **Start Docker containers:**
+   ```bash
+   ./vendor/bin/sail up -d
+   ```
+
+5. **Generate application key & run migrations:**
+   ```bash
+   ./vendor/bin/sail artisan key:generate
+   ./vendor/bin/sail artisan migrate
+   ```
+
+6. **Install frontend dependencies & start Vite dev server:**
+   ```bash
+   ./vendor/bin/sail npm install
+   ./vendor/bin/sail npm run dev
+   ```
+
+7. **Access the application:**
+   - **TailAdmin Dashboard:** [http://localhost](http://localhost) (or [http://localhost:8000](http://localhost:8000) if `APP_PORT=8000`)
+   - **Vite Dev Server:** [http://localhost:5173](http://localhost:5173) (auto-proxied with HMR)
+   - **Mailpit Web UI:** [http://localhost:8025](http://localhost:8025)
+
+### Convenient Sail Shell Alias
+To avoid typing `./vendor/bin/sail` repeatedly, add an alias to your shell profile (`~/.zshrc` or `~/.bashrc`):
+```bash
+alias sail='[ -f sail ] && sh sail || sh vendor/bin/sail'
+```
+Now you can run:
+```bash
+sail up -d
+sail artisan migrate
+sail npm run dev
+sail down
+```
+
+### Container Networking & Vite Architecture
+- **Vite Dev Server (Port 5173)**: Pre-configured in `vite.config.js` with `server.host: "0.0.0.0"` and `server.hmr.host: "localhost"`. This ensures the host browser can access assets directly without `ERR_EMPTY_RESPONSE` connection errors.
+- **Volume File Watcher**: File polling (`usePolling: true`) is enabled in `vite.config.js` to guarantee instant hot reload when editing code on macOS, Windows, or Linux host filesystems.
+- **Container Database Host**: Inside the Docker bridge network, services communicate via container names. Set `DB_HOST=mysql` and `REDIS_HOST=redis` inside Docker.
+- **Tailwind CSS v4**: Seamlessly compiled inside containers via `@tailwindcss/vite` without legacy v3 config conflicts.
+
+---
+
+## 🚀 Quick Start Installation (Local / Native)
 
 ### Step 1: Clone the Repository
 
@@ -372,12 +453,13 @@ tailadmin-laravel/
 ├── tests/                 # Pest test files
 │   ├── Feature/
 │   └── Unit/
+├── docker-compose.yml     # Docker & Laravel Sail configuration
 ├── .env.example           # Example environment file
 ├── artisan                # Artisan CLI
 ├── composer.json          # PHP dependencies
 ├── package.json           # Node dependencies
-├── vite.config.js         # Vite configuration
-└── tailwind.config.js     # Tailwind configuration
+├── vite.config.js         # Vite configuration with container networking
+└── resources/css/app.css  # Tailwind CSS v4 configuration (@theme)
 ```
 
 ## 🐛 Troubleshooting
@@ -411,6 +493,15 @@ php artisan optimize:clear
 - Verify database exists
 
 ## 🔄 Update Log
+
+### [1.1.2] - 2026-09-02
+
+- **Dependency updates**: FullCalendar upgraded to v7 and ApexCharts / Swiper bumped to latest versions.
+- **RTL layout support**: Added right-to-left (RTL) direction support with automatic layout flipping and toggle.
+- **Language / RTL switcher**: Added switcher in user dropdown with persistent direction state in `localStorage`.
+- **Keyboard & dropdown improvements**: Enhanced dropdown behavior and click-outside handling.
+- **Tailwind CSS v4 optimizations**: Applied CSS logical properties across sidebar, tables, header, and components.
+
 
 ### [2026-05-23]
 

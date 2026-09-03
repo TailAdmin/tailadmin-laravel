@@ -1,16 +1,26 @@
+
+
+
 <div x-data="{
     isOpen: false,
     popperInstance: null,
     init() {
         this.$nextTick(() => {
+            const isRtl = document.documentElement.dir === 'rtl' || document.documentElement.getAttribute('dir') === 'rtl';
             this.popperInstance = createPopper(this.$refs.button, this.$refs.content, {
-                placement: 'bottom-end',
+                placement: isRtl ? 'bottom-start' : 'bottom-end',
                 strategy: 'fixed',
                 modifiers: [
                     {
                         name: 'offset',
                         options: {
                             offset: [0, 4],
+                        },
+                    },
+                    {
+                        name: 'preventOverflow',
+                        options: {
+                            padding: 8,
                         },
                     },
                 ],
@@ -20,6 +30,11 @@
     toggle() {
         this.isOpen = !this.isOpen;
         if (this.popperInstance) {
+            const isRtl = document.documentElement.dir === 'rtl' || document.documentElement.getAttribute('dir') === 'rtl';
+            this.popperInstance.setOptions((options) => ({
+                ...options,
+                placement: isRtl ? 'bottom-start' : 'bottom-end',
+            }));
             this.popperInstance.update();
         }
     }
