@@ -127,7 +127,7 @@
 
                                             <!-- Dropdown Chevron -->
                                             <svg x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
-                                                class="ml-auto w-5 h-5 transition-transform duration-200"
+                                                class="ltr:ml-auto rtl:mr-auto w-5 h-5 transition-transform duration-200"
                                                 :class="{
                                                     'rotate-180 text-brand-500': isSubmenuOpen({{ $groupIndex }},
                                                         {{ $itemIndex }}),
