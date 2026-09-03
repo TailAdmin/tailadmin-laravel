@@ -623,6 +623,104 @@ span.flatpickr-weekday,
 .fc-toolbar-title {
   @apply !text-lg !font-medium text-gray-800 dark:text-white/90;
 }
+/* FullCalendar Dark Mode & Theming */
+html.dark .fc .fc-daygrid-day,
+html.dark .fc .fc-daygrid-day-frame,
+html.dark .fc td,
+html.dark .fc-classic-Jk3 {
+  background-color: transparent !important;
+}
+
+html.dark .fc table,
+html.dark .fc td,
+html.dark .fc th,
+html.dark .fc .fc-scrollgrid,
+html.dark .fc-classic-C1x {
+  border-color: var(--color-gray-800, #1f2937) !important;
+}
+
+.dark .event-fc-color .fc-event-title,
+.dark .event-fc-color .fc-event-time,
+.dark .fc-event-title {
+  color: #ffffff !important;
+}
+
+:root[data-color-scheme="dark"],
+:root.dark,
+html.dark,
+html.dark body,
+html.dark #calendar,
+.dark {
+  --fc-classic-background: transparent !important;
+  --fc-classic-border: var(--color-gray-800, #1f2937) !important;
+  --fc-classic-strong-border: var(--color-gray-700, #374151) !important;
+  --fc-classic-foreground: #ffffff !important;
+  --fc-classic-faint: rgba(255, 255, 255, 0.04) !important;
+  --fc-classic-muted: rgba(255, 255, 255, 0.08) !important;
+  --fc-classic-strong: rgba(255, 255, 255, 0.14) !important;
+  --fc-classic-faint-foreground: #9ca3af !important;
+  --fc-classic-muted-foreground: #9ca3af !important;
+  --fc-classic-today: rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark .fc,
+.dark .fc-theme-classic,
+.dark .fc-theme-standard {
+  --fc-classic-background: transparent !important;
+  --fc-classic-border: var(--color-gray-800, #1f2937) !important;
+}
+
+.dark .fc table,
+.dark .fc td,
+.dark .fc th,
+.dark .fc .fc-scrollgrid,
+.dark .fc .fc-theme-classic td,
+.dark .fc .fc-theme-classic th,
+.dark .fc .fc-theme-standard td,
+.dark .fc .fc-theme-standard th {
+  border-color: var(--color-gray-800, #1f2937) !important;
+}
+
+.dark .fc .fc-daygrid-day,
+.dark .fc .fc-daygrid-day-frame,
+.dark .fc .fc-timegrid-slot,
+.dark .fc .fc-timegrid-col {
+  background-color: transparent !important;
+}
+
+.dark .fc .fc-daygrid-day.fc-day-today {
+  background-color: transparent !important;
+}
+
+.dark .fc .fc-daygrid-day.fc-day-today .fc-scrollgrid-sync-inner,
+.dark .fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-frame {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+.dark .fc .fc-col-header-cell,
+.dark .fc th {
+  background-color: var(--color-gray-900, #111827) !important;
+  border-color: var(--color-gray-800, #1f2937) !important;
+}
+
+.dark .fc .fc-daygrid-day-number {
+  color: var(--color-gray-400, #9ca3af) !important;
+}
+
+.dark .fc .fc-col-header-cell-cushion {
+  color: var(--color-gray-400, #9ca3af) !important;
+}
+
+.dark .fc-timegrid-slot-label-frame,
+.dark .fc .fc-timegrid-axis-cushion {
+  color: var(--color-gray-400, #9ca3af) !important;
+}
+
+.dark .fc .fc-timegrid-slot-minor {
+  border-top-style: dashed !important;
+  border-top-color: var(--color-gray-800, #1f2937) !important;
+}
+
 .fc-theme-standard th {
   @apply !border-x-0 border-t !border-gray-200 bg-gray-50 !text-left dark:!border-gray-800 dark:bg-gray-900;
 }
@@ -656,9 +754,10 @@ span.flatpickr-weekday,
 }
 .event-fc-color {
   @apply rounded-lg py-2.5 pl-4 pr-3;
+  direction: ltr !important;
 }
 .event-fc-color .fc-event-title {
-  @apply p-0 text-sm font-normal text-gray-700;
+  @apply p-0 text-sm font-normal text-gray-700 dark:text-white!;
 }
 .fc-daygrid-event-dot {
   @apply w-1 h-5 ml-0 mr-3 border-none rounded-sm;

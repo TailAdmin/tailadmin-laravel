@@ -536,7 +536,7 @@ export function calendarInit() {
       if (isTimeGridView) {
         return {
           html: `
-            <div class="event-fc-color flex h-full w-full flex-col justify-start overflow-hidden rounded-lg p-1.5 transition-colors ${
+            <div dir="ltr" class="event-fc-color flex h-full w-full flex-col justify-start overflow-hidden rounded-lg p-1.5 transition-colors ${
               colors.bg
             }">
               <div class="flex items-center gap-1.5">
@@ -557,7 +557,7 @@ export function calendarInit() {
 
       return {
         html: `
-          <div class="event-fc-color flex items-center rounded-lg py-1.5 ps-2.5 pe-3 transition-colors ${
+          <div dir="ltr" class="event-fc-color flex items-center rounded-lg py-1.5 ps-2.5 pe-3 transition-colors ${
             colors.bg
           }">
             <div class="fc-daygrid-event-dot ms-0 me-2 h-3.5 w-1 shrink-0 rounded-full border-none ${
@@ -568,7 +568,7 @@ export function calendarInit() {
                 ? `<div class="fc-event-time me-1.5 p-0 text-xs font-normal text-gray-500 dark:text-gray-400">${eventInfo.timeText}</div>`
                 : ""
             }
-            <div class="fc-event-title truncate p-0 text-xs font-medium text-gray-700 dark:text-gray-200">${
+            <div class="fc-event-title truncate p-0 text-xs font-medium text-gray-700 dark:text-white">${
               eventInfo.event.title || ""
             }</div>
           </div>
