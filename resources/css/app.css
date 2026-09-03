@@ -811,10 +811,94 @@ html.dark #calendar,
   @apply text-sm font-medium text-gray-500 dark:text-gray-400;
 }
 /* yearly calender css start */
-/* FullCalendar MultiMonth (Year View) */
+.fc-multiMonth-view,
+.fc-multiMonthYear-view,
 .fc-multimonth {
-  @apply grid! grid-cols-1 gap-6 border-x-0! p-6 sm:grid-cols-2 lg:grid-cols-3;
   background: transparent;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+.fc-multiMonth-view div[style*="aspect-ratio"],
+.fc-multiMonthYear-view div[style*="aspect-ratio"],
+.fc-multimonth div[style*="aspect-ratio"] {
+  aspect-ratio: auto !important;
+  height: auto !important;
+  min-height: auto !important;
+}
+
+.fc-multiMonth-view .fc-TJ,
+.fc-multiMonthYear-view .fc-TJ,
+.fc-multimonth .fc-TJ {
+  position: static !important;
+  height: auto !important;
+}
+
+.fc-multiMonth-view [role="grid"],
+.fc-multiMonth-view [role="listitem"],
+.fc-multiMonth-view [role="list"],
+.fc-multiMonth-view .overflow-hidden,
+.fc-multiMonthYear-view [role="grid"],
+.fc-multiMonthYear-view [role="listitem"],
+.fc-multiMonthYear-view [role="list"],
+.fc-multiMonthYear-view .overflow-hidden,
+.fc-multimonth [role="grid"],
+.fc-multimonth [role="listitem"],
+.fc-multimonth [role="list"],
+.fc-multimonth .overflow-hidden {
+  overflow: visible !important;
+  height: auto !important;
+  min-height: auto !important;
+}
+
+/* Responsive month columns: sm = 1, md = 2, xl = 3 */
+.fc-multiMonth-view [role="list"],
+.fc-multiMonthYear-view [role="list"],
+.fc-multimonth {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 1.5rem !important;
+  padding: 1.5rem !important;
+  padding-bottom: 3rem !important;
+  background: transparent;
+  height: auto !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+}
+
+.fc-multiMonth-view [role="listitem"],
+.fc-multiMonthYear-view [role="listitem"],
+.fc-multimonth .fc-multimonth-month {
+  width: 100% !important;
+  height: auto !important;
+  min-height: auto !important;
+  overflow: visible !important;
+}
+
+@media (min-width: 768px) {
+  .fc-multiMonth-view [role="listitem"],
+  .fc-multiMonthYear-view [role="listitem"],
+  .fc-multimonth .fc-multimonth-month {
+    width: calc(50% - 0.75rem) !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  .fc-multiMonth-view [role="listitem"],
+  .fc-multiMonthYear-view [role="listitem"],
+  .fc-multimonth .fc-multimonth-month {
+    width: calc(33.333% - 1rem) !important;
+  }
+}
+
+.fc-view-harness:has(.fc-multimonth),
+.fc-view-harness:has(.fc-multiMonth-view),
+.fc-view-harness:has(.fc-multiMonthYear-view),
+.fc-scroller:has(.fc-multimonth),
+.fc-scroller:has(.fc-multiMonth-view),
+.fc-scroller:has(.fc-multiMonthYear-view) {
+  overflow: visible !important;
+  height: auto !important;
 }
 
 .fc-multimonth-month {
@@ -837,30 +921,43 @@ html.dark #calendar,
   @apply p-0! text-xs! font-medium text-gray-400 dark:text-gray-500;
 }
 
+.fc-multimonth-daygrid,
+.fc-multimonth-daygrid-table,
+.fc-multimonth-daygrid-table tbody,
+.fc-multimonth-daygrid-table tr {
+  height: auto !important;
+  overflow: visible !important;
+}
+
 .fc-multimonth-daygrid-table {
-  @apply border-none!;
+  @apply border-none! w-full!;
 }
 
 .fc-multimonth-daygrid-table td {
   @apply border-none!;
 }
 
+.fc-multiMonth-view .fc-multimonth-day,
 .fc-multimonth-day {
   @apply p-0.5!;
 }
 
+.fc-multiMonth-view .fc-daygrid-day-frame,
 .fc-multimonth .fc-daygrid-day-frame {
-  @apply min-h-14 rounded-md p-1 transition-colors hover:bg-gray-50 sm:min-h-16 dark:hover:bg-white/5;
+  @apply min-h-6 sm:min-h-7 rounded-md p-0.5 transition-colors hover:bg-gray-50 dark:hover:bg-white/5 flex flex-col justify-start items-center;
 }
 
+.fc-multiMonth-view .fc-daygrid-day-number,
 .fc-multimonth .fc-daygrid-day-number {
   @apply p-0.5! text-xs font-medium text-gray-700 dark:text-gray-400;
 }
 
+.fc-multiMonth-view .fc-daygrid-day.fc-day-today .fc-daygrid-day-frame,
 .fc-multimonth .fc-daygrid-day.fc-day-today .fc-daygrid-day-frame {
   @apply rounded-md bg-brand-50/60 font-semibold text-brand-500 dark:bg-brand-500/10 dark:text-brand-400;
 }
 
+.fc-multiMonth-view .fc-daygrid-day.fc-day-today .fc-daygrid-day-number,
 .fc-multimonth .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
   @apply font-semibold text-brand-500 dark:text-brand-400;
 }
