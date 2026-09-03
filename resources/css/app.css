@@ -744,7 +744,10 @@ html.dark #calendar,
   @apply !p-3 text-sm font-medium text-gray-700 dark:text-gray-400;
 }
 .fc .fc-daygrid-day-top {
-  @apply flex-row!;
+  @apply flex-row-reverse;
+}
+[dir="rtl"] .fc .fc-daygrid-day-top {
+  @apply flex-row;
 }
 .fc .fc-day-other .fc-daygrid-day-top {
   opacity: 1;

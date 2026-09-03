@@ -130,17 +130,7 @@
         })();
     </script>
     
-    <!-- Apply RTL mode immediately to prevent flash -->
-    <script>
-        (function() {
-            const savedDir = localStorage.getItem("dir");
-            if (savedDir === "rtl") {
-                document.documentElement.setAttribute("dir", "rtl");
-            } else if (savedDir === "ltr") {
-                document.documentElement.setAttribute("dir", "ltr");
-            }
-        })();
-    </script>
+
 </head>
 
 <body>
