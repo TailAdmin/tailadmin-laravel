@@ -1,26 +1,40 @@
 <div class="relative" x-data="{
     isOpen: false,
     subDropdownOpen: false,
-    currentDir: localStorage.getItem('dir') || 'ltr',
+    currentLocale: localStorage.getItem('locale') || (localStorage.getItem('dir') === 'rtl' ? 'ar' : 'en'),
     languages: [
         {
             id: 'en',
-            dir: 'ltr',
             name: 'English',
             shortName: 'English',
-            flag: 'flag-us.svg'
+            flag: 'flag-us.svg',
+            dir: 'ltr'
         },
         {
             id: 'ar',
-            dir: 'rtl',
             name: 'Arabic (Saudi)',
             shortName: 'Arabic',
             flag: 'flag-sa.svg',
-            badge: 'RTL'
+            badge: 'RTL',
+            dir: 'rtl'
+        },
+        {
+            id: 'es',
+            name: 'Español',
+            shortName: 'Español',
+            flag: 'flag-es.svg',
+            dir: 'ltr'
+        },
+        {
+            id: 'de',
+            name: 'Deutsch',
+            shortName: 'Deutsch',
+            flag: 'flag-de.svg',
+            dir: 'ltr'
         }
     ],
     get currentLang() {
-        return this.languages.find(l => l.dir === this.currentDir) || this.languages[0];
+        return this.languages.find(l => l.id === this.currentLocale) || this.languages[0];
     },
     toggleDropdown() {
         this.isOpen = !this.isOpen;
@@ -32,8 +46,10 @@
         this.isOpen = false;
         this.subDropdownOpen = false;
     },
-    setDir(dir) {
-        this.currentDir = dir;
+    selectLanguage(lang) {
+        this.currentLocale = lang.id;
+        localStorage.setItem('locale', lang.id);
+        const dir = lang.dir || (lang.id === 'ar' ? 'rtl' : 'ltr');
         localStorage.setItem('dir', dir);
         document.documentElement.setAttribute('dir', dir);
         this.closeDropdown();
@@ -46,7 +62,7 @@
         @click="toggleDropdown()"
     >
         <span class="mr-3 overflow-hidden rounded-full h-11 w-11 rtl:mr-0 rtl:ml-3">
-            <img src="/images/user/owner.jpg" alt="User" />
+            <img src="/images/user/owner.png" alt="User" />
         </span>
 
         <span class="block mr-1 font-medium text-theme-sm rtl:mr-0 rtl:ml-1">Musharof</span>
@@ -176,16 +192,16 @@
                             <li>
                                 <button
                                     type="button"
-                                    @click="setDir(lang.dir)"
+                                    @click="selectLanguage(lang)"
                                     class="flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-2 ltr:text-left rtl:text-right text-theme-sm font-medium transition-colors"
-                                    :class="currentDir === lang.dir
+                                    :class="currentLocale === lang.id
                                         ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400'
                                         : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white'"
                                 >
                                     <span class="flex items-center gap-2">
                                         <span
                                             class="size-1.5 shrink-0 rounded-full transition-opacity"
-                                            :class="currentDir === lang.dir ? 'bg-brand-500 opacity-100 dark:bg-brand-400' : 'opacity-0'"></span>
+                                            :class="currentLocale === lang.id ? 'bg-brand-500 opacity-100 dark:bg-brand-400' : 'opacity-0'"></span>
                                         <img :src="'/images/icons/' + lang.flag" :alt="lang.name" class="size-5 shrink-0 overflow-hidden rounded-full object-cover" />
                                         <span class="truncate" x-text="lang.name"></span>
                                     </span>

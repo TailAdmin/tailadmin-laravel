@@ -102,7 +102,6 @@
 </head>
 
 <body
-    x-data="{ 'loaded': true}"
     x-init="$store.sidebar.isExpanded = window.innerWidth >= 1280;
     const checkMobile = () => {
         if (window.innerWidth < 1280) {
@@ -114,10 +113,6 @@
         }
     };
     window.addEventListener('resize', checkMobile);">
-
-    {{-- preloader --}}
-    <x-common.preloader/>
-    {{-- preloader end --}}
 
     <div class="min-h-screen xl:flex">
         @include('layouts.backdrop')
