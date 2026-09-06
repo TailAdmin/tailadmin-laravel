@@ -1,7 +1,7 @@
 <div class="relative" x-data="{
     isOpen: false,
     subDropdownOpen: false,
-    currentLocale: localStorage.getItem('locale') || (localStorage.getItem('dir') === 'rtl' ? 'ar' : 'en'),
+    currentLocale: '{{ app()->getLocale() }}' || localStorage.getItem('locale') || (localStorage.getItem('dir') === 'rtl' ? 'ar' : 'en'),
     languages: [
         {
             id: 'en',
@@ -48,11 +48,12 @@
     },
     selectLanguage(lang) {
         this.currentLocale = lang.id;
-        localStorage.setItem('locale', lang.id);
         const dir = lang.dir || (lang.id === 'ar' ? 'rtl' : 'ltr');
+        localStorage.setItem('locale', lang.id);
         localStorage.setItem('dir', dir);
         document.documentElement.setAttribute('dir', dir);
-        this.closeDropdown();
+        document.documentElement.setAttribute('lang', lang.id);
+        window.location.href = '/locale/' + lang.id;
     }
 }" @click.outside="closeDropdown()">
     <!-- User Trigger -->
