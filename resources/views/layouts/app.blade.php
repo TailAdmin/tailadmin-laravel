@@ -115,9 +115,20 @@
         });
     </script>
 
-    <!-- Apply dark mode immediately to prevent flash -->
+    <!-- Apply RTL and dark mode immediately to prevent flash -->
     <script>
         (function() {
+            const savedDir = localStorage.getItem('dir');
+            const savedLocale = localStorage.getItem('locale');
+            if (savedDir) {
+                document.documentElement.setAttribute('dir', savedDir);
+            } else if (savedLocale === 'ar') {
+                document.documentElement.setAttribute('dir', 'rtl');
+            }
+            if (savedLocale) {
+                document.documentElement.setAttribute('lang', savedLocale);
+            }
+
             const savedTheme = localStorage.getItem('theme');
             const isDark = savedTheme === 'dark';
             if (isDark) {
