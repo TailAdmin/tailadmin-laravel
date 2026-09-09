@@ -122,7 +122,6 @@ routes/
 ## Don'ts
 
 - Don't install new Composer packages or NPM dependencies without asking the user.
-- Don't edit files in `tailadmin-html-pro` unless explicitly asked — focus changes on the Laravel codebase (`tailadmin-laravel-pro`).
 - Don't hardcode physical directional utilities (`ml-*`, `mr-*`, `pl-*`, `pr-*`, `left-*`, `right-*`, `border-l-*`, `border-r-*`, `rounded-l-*`, `rounded-r-*`, `text-left`, `text-right`) without providing proper RTL support (`ltr:` / `rtl:` or CSS logical equivalents).
 - Don't create a `tailwind.config.js` file — Tailwind v4 configuration belongs in `resources/css/app.css`.
 - Don't hardcode user-facing strings in Blade files without adding corresponding keys to `lang/<locale>.json`.
