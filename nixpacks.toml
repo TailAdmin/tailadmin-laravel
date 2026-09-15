@@ -1,0 +1,5 @@
+[phases.setup]
+nixPkgs = ["php83", "php83Packages.composer", "nodejs_22"]
+
+[phases.build]
+cmds = ["npm run build"]
