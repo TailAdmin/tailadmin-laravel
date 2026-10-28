@@ -33,7 +33,7 @@
         </x-ui.dropdown-menu.item>
 
         <x-ui.dropdown-menu.sub>
-            <x-ui.dropdown-menu.sub-trigger show-icon>
+            <x-ui.dropdown-menu.sub-trigger>
                 <x-svg.globe class="size-6" />
                 <span>{{ __('userDropdown.language') }}</span>
                 <x-ui.badge variant="light" color="gray" size="sm" class="ms-auto me-1 h-auto gap-1.5 border border-gray-200 bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 text-shadow-none dark:border-gray-800 dark:bg-white/3 dark:text-gray-300 dark:text-shadow-none [&>img]:size-3.5">
