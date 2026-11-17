@@ -504,6 +504,11 @@ php artisan optimize:clear
 
 ## 🔄 Update Log
 
+### Version 1.3.1 - [November 17, 2026]
+
+- **RTL Improvements**: Improved RTL support for alerts, buttons, dropdown menus, and charts.
+- **Fixes**: Hid the native arrow on phone number country selects.
+
 ### Version 1.3.0 - [October 28, 2026]
 
 #### Major Updates & Enhancements
