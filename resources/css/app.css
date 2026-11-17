@@ -366,6 +366,11 @@
 }
 
 /* third-party libraries CSS */
+.apexcharts-canvas,
+.apexcharts-canvas * {
+  direction: ltr !important;
+}
+
 .apexcharts-legend-text {
   @apply ps-5! text-gray-700! dark:text-gray-400!;
 }

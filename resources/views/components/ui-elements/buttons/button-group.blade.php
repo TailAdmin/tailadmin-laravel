@@ -2,7 +2,7 @@
     <x-ui.button-group>
         <x-ui.button-group>
             <x-ui.button variant="outline" size="icon" aria-label="Go Back">
-                <x-svg.arrow-left />
+                <x-svg.arrow-left class="rtl:rotate-180" />
             </x-ui.button>
         </x-ui.button-group>
         <x-ui.button-group>
